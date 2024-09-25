@@ -1,2 +1,2 @@
-# myanmar-tokenizer
+# burmese-tokenizer
 A Rule-based Syllable Segmentation of Myanmar Text

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding=utf-8 -*-
-
 import codecs
 from python_utils import utils, task
 import sys
@@ -10,6 +7,12 @@ import time
 
 
 '''
+
+The MyanmarTokenizer is a specialized tool for processing Myanmar text, 
+leveraging Unicode standards and linguistic rules to accurately segment text into syllables. 
+It is useful for applications in natural language processing, text analysis, 
+and any system that requires understanding or manipulating Myanmar language text.
+
 缅甸语：Myanmar
 参考《A Rule-based Syllable Segmentation of Myanmar Text 》里的规则进行实现
 参考文献：http://www.aclweb.org/anthology/I08-3010
@@ -76,7 +79,7 @@ A Myanmar syllable consists of one initial consonant, zero or more medials,
 zero or more vowels and optional dependent various signs.
 零个或多个元音和可选的依赖变形字符。
 Independent vowels, independent various signs and digits can act as stand-alone syllables.
-独立元音，独立各种标志和数字可以作为独立的音节。根据Unicode标准，元音后辅音存储。因此，缅甸元音符号E（U + 1031）之后的辅音存储虽然是摆在辅音渲染（如ေန）。 Medials可以在一个音节中最多出现三次（如ြမôာ）。元音可以在一个音节（如ေစာ）出现两次。在一个音节，第二个辅音可能会与一个AST的devowelising（如ဇင်）。每个在E组独立元音都有自己的音节，但它们也可以与其他标志（辅音，元音依赖，依赖各种标牌）相结合，形成一个音节（如ဣေòန研发，ဥက3/4ာ，ဦး，ေ ïသာင်း）。缅甸脚本的音节结构可以写成BNF（巴科斯范式）如下：
+独立元音，独立各种标志和数字可以作为独立的音节。根据Unicode标准，元音后辅音存储。因此，缅甸元音符号E（U + 1031）之后的辅音存储虽然是摆在辅音渲染（如ေန）。 Medials可以在一个音节中最多出现三次（如ြမôာ）。元音可以在一个音节（如ေစာ）出现两次。在一个音节，第二个辅音可能会与一个AST的devowelising（如ဇင်）。每个在E组独立元音都有自己的音节，但它们也可以与其他标志（辅音，元音依赖，依赖各种标牌）相结合，形成一个音节（如ဣေòနÐ, ဥက3⁄4 ာ, ဦး, ေ ïသာင်း）。缅甸脚本的音节结构可以写成BNF（巴科斯范式）如下：
 According to the Unicode standard, vowels are stored after the consonant.
 Therefore, Myanmar vowel sign E (U+1031) is stored after the consonant
 although it is placed before the consonant in rendering (e.g. ေန).
@@ -207,7 +210,7 @@ Table 5 and 6 define the break status for each pair of three and four consecutiv
 The symbol U in the Table 4 and 5 stands for undefined cases.
 符号U在表4和5代表不确定的情况。
 Cases undefined in Table 4 are defined in the Table 5, and those undefined in Table 5 are then defined in Table 6.
-表4中未定义的在表5中定义，和那些在表5中未定义的在表6中定义。
+表4中未定义的在表5中定义，和那些在表5中未定义���在表6中定义。
 The syllable segmentation program obtains the break status for each pair of characters by
 comparing the input character sequence with the letter sequence tables.
 音节分词程序通过与字母顺序表比较输入字符序列获得用于每对字符的分隔状态。
@@ -237,7 +240,7 @@ sequence tables to determine syllable boundaries.
 
 A syllable segmented Myanmar text string is shown as the output of the program.
 The symbol "|" is used to represent the syllable breaking point.
-符号“|”用于表示音节分隔符。
+符号"|"用于表示音节分隔符。
 In order to evaluate the accuracy of the algorithm, a training corpus was developed
 by extracting 11,732 headwords from Myanmar Orthography (Myanmar Language Commission, 2003).
 The corpus contains a total of 32,238 Myanmar syllables.
@@ -248,8 +251,8 @@ These syllables were tested in the program and the segmented results were manual
 The results showed 12 errors of incorrectly segmented syllables, thus achieving
 accuracy of 99.96% for segmentation.
 结果显示，不正确地分割音节12错误，从而实现了99.96％的准确度进行分割。
-The few errors occur with the Myanmar Letter Great Sa ‘ဿ’ and the Independent Vowel ‘ဥ’.
-缅甸字符Great Sa‘ဿ’和独立元音‘ဥ’出现了一些错误。
+The few errors occur with the Myanmar Letter Great Sa 'ဿ' and the Independent Vowel 'ဥ'.
+缅甸字符Great Sa'ဿ'和独立元音'ဥ'出现了一些错误。
 The errors can be fixed by updating the segmentation rules of these two characters in letter sequence tables.
 这些错误可以固定通过更新这两个字符的分割规则字母序列表。
 
@@ -342,22 +345,22 @@ class MyanmarTokenizer:
 
     def code2Category(self, sentence):
         sentence = utils.toUnicode(sentence)
-        return ''.join([self.codeCategory[c] if c in MyanmarTokenizer._MYANMAR_CODES else '?' for c in sentence])
+        # Use a list comprehension for better performance
+        return ''.join(self.codeCategory.get(c, '?') for c in sentence if c in MyanmarTokenizer._MYANMAR_CODES)
 
     def _getSyllableBreakStatus(self, categorys, categorysLen):
-        if categorysLen == 2:
-            letterSequenceTable = MyanmarTokenizer._LETTER_SEQUENCE_TABLE_2ND_CHARACTER
-        elif categorysLen == 3:
-            letterSequenceTable = MyanmarTokenizer._LETTER_SEQUENCE_TABLE_3RD_CHARACTER
-        elif categorysLen == 4:
-            letterSequenceTable = MyanmarTokenizer._LETTER_SEQUENCE_TABLE_4TH_CHARACTER
-        else:
-            letterSequenceTable = None
-        if not letterSequenceTable is None:
+        # Cache the letter sequence table lookup
+        letterSequenceTable = {
+            2: MyanmarTokenizer._LETTER_SEQUENCE_TABLE_2ND_CHARACTER,
+            3: MyanmarTokenizer._LETTER_SEQUENCE_TABLE_3RD_CHARACTER,
+            4: MyanmarTokenizer._LETTER_SEQUENCE_TABLE_4TH_CHARACTER
+        }.get(categorysLen)
+
+        if letterSequenceTable is not None:
             status = letterSequenceTable.get(categorys[:categorysLen - 1])
-            if not status is None:
+            if status is not None:
                 index = MyanmarTokenizer._LETTER_SEQUENCE_TABLE_INDEX.get(categorys[categorysLen - 1])
-                if not index is None:
+                if index is not None:
                     return status[index]
         return MyanmarTokenizer._BREAK_STATUS_UNDEFINED
 
@@ -565,7 +568,7 @@ def test():
     # seg = "ကမ္ဘာ့ဘဏ်အုပ်abcdefgစု၏အဖွဲ့ဝင်"
     # seg = "ဆabcင်"
     # seg = 'ကော်'
-    seg = 'စာကြည့်တိုက်'
+    seg = 'စာကြည့်တိုက်'
     print tokenizer.code2Category(seg)
     # result = tokenizer.cutRecursively(seg)
     # print result
@@ -667,4 +670,3 @@ if __name__ == "__main__":
     #
     # test()
     pass
-
