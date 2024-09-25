@@ -114,7 +114,7 @@ Examples of Myanmar syllables and their equivalent Unicode code points are shown
 Syllable Segmentation Rules：
 Syllable Segmentation Rules Typically, a syllable boundary can be determined
 by comparing pairs of characters to find whether a break is possible or not between them.
-通常情况下，一个音节边界可以通过比较字符对来确定是否可以分割或者不在他们之间
+通常情况下，一个音节边界可以通过比较字符对来确定是否���以分割或者不在他们之间
 However, in some cases it is not sufficient to determine a syllable boundary
 by just comparing two characters.
 然而某些情况下，由两个字符确定音节边界不够充分
@@ -210,7 +210,7 @@ Table 5 and 6 define the break status for each pair of three and four consecutiv
 The symbol U in the Table 4 and 5 stands for undefined cases.
 符号U在表4和5代表不确定的情况。
 Cases undefined in Table 4 are defined in the Table 5, and those undefined in Table 5 are then defined in Table 6.
-表4中未定义的在表5中定义，和那些在表5中未定义���在表6中定义。
+表4中未定义的在表5中定义，和那些在表5中未定义在表6中定义。
 The syllable segmentation program obtains the break status for each pair of characters by
 comparing the input character sequence with the letter sequence tables.
 音节分词程序通过与字母顺序表比较输入字符序列获得用于每对字符的分隔状态。
@@ -551,7 +551,7 @@ def test():
         result = tokenizer.cutCategory(case[0])
         # if '|'+result+'|' != case[1]:
         #     print case, result
-        print case, result, '|' + result + '|' == case[1]
+        print (case, result, '|' + result + '|' == case[1])
 
     lines = codecs.open('samples.txt', 'r', 'utf16').readlines()
     tokenizer.separator = '@@'
@@ -560,7 +560,7 @@ def test():
         if len(case) == 1:
             case = [case[0], case[0]]
         result = tokenizer.cut(case[0])
-        print u'%3d\t%s\t%s\t=>\t%s\t==\t%s' % (lineno+1, result == case[1], case[0], case[1], result)
+        print (u'%3d\t%s\t%s\t=>\t%s\t==\t%s' % (lineno+1, result == case[1], case[0], case[1], result))
 
     # tokenizer = MyanmarTokenizer()
     # seg = "ကမ္ဘာ့ဘဏ်အုပ်စု၏အဖွဲ့ဝင်"
@@ -569,11 +569,12 @@ def test():
     # seg = "ဆabcင်"
     # seg = 'ကော်'
     seg = 'စာကြည့်တိုက်'
-    print tokenizer.code2Category(seg)
+
+    print (tokenizer.code2Category(seg))
     # result = tokenizer.cutRecursively(seg)
     # print result
     result = tokenizer.cut(seg)
-    print result
+    print (result)
     # tokenizer.cutCategory('ECSCVCC')
     # test();
 
@@ -644,7 +645,7 @@ def analyzeParams(args):
 
         for path in utils.getFiles(opt.input, recursive=True):
             filecount += 1
-            print 'run:%8d\r' % filecount,
+            print('run:%8d\r' % filecount)  # Updated to use parentheses for print
             stdin = codecs.open(path, 'r', opt.coding)
             if isdir:
                 op = os.path.join(opt.output, path[inputpathLen + 1:])
